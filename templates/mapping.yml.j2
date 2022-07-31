@@ -10,6 +10,7 @@ mapping:
   namespace: {{ override[repo.full_name]['namespace'] | default(repo.full_name | regex_replace('/.*', '')) }}
   name: {{ override[repo.full_name]['name'] | default(repo.full_name | regex_replace('.*/', '')) }}
   visibility: {{ override[repo.full_name]['visibility'] | default(visibility(repo.private)) }}
+  description: {{ override[repo.full_name]['description'] | default(repo.description) }}
 {% endif %}
 {% endif %}
 {% endif %}

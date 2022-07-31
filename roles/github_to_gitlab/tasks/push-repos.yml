@@ -37,13 +37,14 @@
   changed_when: "create_repo.status == 201"
   failed_when: "create_repo.status != 201 and 'has already been taken' not in create_repo.json.message.name"
 
-- name: Set repository visibility
+- name: Set repository details
   ansible.builtin.uri:
     url: "https://{{ gl_host }}/api/v4/projects/{{ item.namespace }}%2F{{ item.name }}"
     method: PUT
     body_format: json
     body: {
       "visibility": "{{ item.visibility }}",
+      "description": "{{ item.description | default('') }}",
     }
     headers:
       PRIVATE-TOKEN: "{{ gl_token }}"
