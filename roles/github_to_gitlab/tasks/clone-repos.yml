@@ -3,14 +3,14 @@
 
 - name: Create directories for repositories
   ansible.builtin.file:
-    path: "repos/{{ item.github }}"
+    path: "{{ repos_dir }}/{{ item.github }}"
     state: directory
   loop: "{{ mapping }}"
 
 - name: Clone repositories
   ansible.builtin.git:
     repo: "https://{{ gh_user | urlencode }}:{{ gh_token | urlencode }}@github.com/{{ item.github }}.git"
-    dest: "repos/{{ item.github }}"
+    dest: "{{ repos_dir }}/{{ item.github }}"
     clone: true
     update: true
     executable: /usr/bin/git

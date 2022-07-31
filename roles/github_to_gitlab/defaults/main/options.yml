@@ -1,4 +1,6 @@
 # You can override these in `host_vars/localhost/`
+repos_dir: ./repos
+
 skip_forks: true
 skip_private: false
 sync_visibility: true # This will make repositories that are public on GitHub public on GitLab. If not set, everything will stay private

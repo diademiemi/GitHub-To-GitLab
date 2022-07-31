@@ -58,7 +58,7 @@
   ansible.builtin.shell: |
     git remote add mirror https://{{ gl_host }}/{{ item.namespace }}/{{ item.name }}.git
   args:
-    chdir: "repos/{{ item.github }}"
+    chdir: "{{ repos_dir }}/{{ item.github }}"
   loop: "{{ mapping }}"
   register: add_remote
   changed_when: "'error: remote mirror already exists.' not in add_remote.stderr"
@@ -69,7 +69,7 @@
 - name: Push to remote
   ansible.builtin.shell: "git push https://{{ gl_user | urlencode }}:{{ gl_token | urlencode }}@{{ gl_host }}/{{ item.namespace }}/{{ item.name }}.git --all"
   args:
-    chdir: "repos/{{ item.github }}"
+    chdir: "{{ repos_dir }}/{{ item.github }}"
   loop: "{{ mapping }}"
   register: push_remote
   changed_when: "'Everything up-to-date' not in push_remote.stderr"
