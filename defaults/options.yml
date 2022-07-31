@@ -14,4 +14,3 @@ override: # Override entries in mapping.yml
     namespace: OtherNamespace
     name: OtherName
     visibility: "public"
-
