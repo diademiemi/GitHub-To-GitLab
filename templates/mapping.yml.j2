@@ -2,7 +2,7 @@
   {% if private %}"private"{% else %}"public"{% endif %}
 {%- endmacro %}
 mapping:
-{% for repo in gh_orgs.results | map(attribute='json.items') | flatten %}
+{% for repo in gh_orgs.results | map(attribute='json.items') | flatten | sort(attribute='full_name')  %}
 {% if not skip_forks or not repo.fork %}
 {% if not skip_private or not repo.private %}
 {% if repo.full_name not in skip_repos %}
