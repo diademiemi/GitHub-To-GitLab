@@ -3,7 +3,7 @@
 
 - name: Create projects for repositories
   ansible.builtin.uri:
-    url: "{{ gl_url }}/api/v4/groups"
+    url: "https://{{ gl_host }}/api/v4/groups"
     method: POST
     body_format: json
     body: {
@@ -21,7 +21,7 @@
 
 - name: Create repositories
   ansible.builtin.uri:
-    url: "{{ gl_url }}/api/v4/projects"
+    url: "https://{{ gl_host }}/api/v4/projects"
     method: POST
     body_format: json
     body: {
@@ -39,7 +39,7 @@
 
 - name: Set repository visibility
   ansible.builtin.uri:
-    url: "{{ gl_url }}/api/v4/projects/{{ item.namespace }}%2F{{ item.name }}"
+    url: "https://{{ gl_host }}/api/v4/projects/{{ item.namespace }}%2F{{ item.name }}"
     method: PUT
     body_format: json
     body: {
@@ -55,7 +55,7 @@
 
 - name: Add remote to repository
   ansible.builtin.shell: |
-    git remote add mirror {{ gl_url }}/{{ item.namespace }}/{{ item.name }}.git
+    git remote add mirror https://{{ gl_host }}/{{ item.namespace }}/{{ item.name }}.git
   args:
     chdir: "repos/{{ item.github }}"
   loop: "{{ mapping }}"
@@ -66,7 +66,7 @@
     GIT_TERMINAL_PROMPT: "0"
 
 - name: Push to remote
-  ansible.builtin.shell: "git push -u mirror"
+  ansible.builtin.shell: "git push https://{{ gl_user | urlencode }}:{{ gl_token | urlencode }}@{{ gl_host }}/{{ item.namespace }}/{{ item.name }}.git --all"
   args:
     chdir: "repos/{{ item.github }}"
   loop: "{{ mapping }}"
@@ -74,5 +74,3 @@
   changed_when: "'Everything up-to-date' not in push_remote.stderr"
   environment:
     GIT_TERMINAL_PROMPT: "0"
-    GIT_USERNAME: "{{ gl_user }}"
-    GIT_PASSWORD: "{{ gl_token }}"

@@ -1,0 +1,14 @@
+- include_tasks: tasks/create-mapping.yml
+  tags: create-mapping
+
+- name: Pause after creating mapping
+  ansible.builtin.pause:
+    seconds: 30
+    prompt: |
+      Make sure mapping.yml looks alright. Make any needed adjustments in the override variable!
+      Press CTRL-C and C to continue.
+
+- include_tasks: tasks/clone-repos.yml
+  tags: clone-repos
+- include_tasks: tasks/push-repos.yml
+  tags: push-repos

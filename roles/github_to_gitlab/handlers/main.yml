@@ -1,0 +1,5 @@
+- name: message
+  ansible.builtin.debug:
+    msg: |
+      A group without a known ID was used. You will now have to use the GitLab admin portal to get the namespace ID of the group(s).
+      Fill these in the `gitlab_namespace_ids` dict like `"name": id`. Then you can continue."

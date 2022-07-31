@@ -1,5 +1,5 @@
 # You can override these in `host_vars/localhost/`
-gl_url: https://gitlab.com
+gl_host: gitlab.com # Assumes https
 gl_user: user
 gl_user_id: 4
 gl_token: token

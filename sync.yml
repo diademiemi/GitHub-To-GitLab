@@ -1,14 +1,4 @@
 - hosts: localhost
 
-  tasks:
-  - include_tasks: tasks/create-mapping.yml
-    tags: create-mapping
-  - include_tasks: tasks/clone-repos.yml
-    tags: clone-repos
-  - include_tasks: tasks/push-repos.yml
-    tags: push-repos
-  handlers:
-  - name: message
-    ansible.builtin.debug:
-      msg: "A group without a known ID was used. You will now have to use the GitLab admin portal to get the namespace ID of the group(s).
-        Fill these in the `gitlab_namespace_ids` dict like name: id. Then you can continue."
+  roles:
+  - github_to_gitlab
