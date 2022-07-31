@@ -1,0 +1,16 @@
+{% macro visibility(private) -%}
+  {% if private %}"private"{% else %}"public"{% endif %}
+{%- endmacro %}
+mapping:
+{% for repo in gh_orgs.results | map(attribute='json.items') | flatten %}
+{% if not skip_forks or not repo.fork %}
+{% if not skip_private or not repo.private %}
+{% if repo.full_name not in skip_repos %}
+- github: {{ repo.full_name }}
+  namespace: {{ override[repo.full_name]['namespace'] | default(repo.full_name | regex_replace('/.*', '')) }}
+  name: {{ override[repo.full_name]['name'] | default(repo.full_name | regex_replace('.*/', '')) }}
+  visibility: {{ override[repo.full_name]['visibility'] | default(visibility(repo.private)) }}
+{% endif %}
+{% endif %}
+{% endif %}
+{% endfor %}

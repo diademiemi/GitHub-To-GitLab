@@ -1,0 +1,17 @@
+# You can override these in `host_vars/localhost/`
+skip_forks: true
+skip_private: false
+sync_visibility: true # This will make repositories that are public on GitHub public on GitLab. If not set, everything will stay private
+
+sync_gh_orgs:
+- "{{ gh_user }}"
+
+skip_repos:
+- user/skip-this-repo
+
+override: # Override entries in mapping.yml
+  user/override-this-repo:
+    namespace: OtherNamespace
+    name: OtherName
+    visibility: "public"
+

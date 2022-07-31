@@ -1,0 +1,20 @@
+- name: Include mapping.yml
+  ansible.builtin.include_vars: ./mapping.yml
+
+- name: Create directories for repositories
+  ansible.builtin.file:
+    path: "repos/{{ item.github }}"
+    state: directory
+  loop: "{{ mapping }}"
+
+- name: Clone repositories
+  ansible.builtin.git:
+    repo: "https://{{ gh_user | urlencode }}:{{ gh_token | urlencode }}@github.com/{{ item.github }}.git"
+    dest: "repos/{{ item.github }}"
+    clone: true
+    update: true
+    executable: /usr/bin/git
+  loop: "{{ mapping }}"
+  environment:
+    GIT_TERMINAL_PROMPT: "0"
+    GIT_ASKPASS: ../credential-helper.sh

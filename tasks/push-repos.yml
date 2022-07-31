@@ -1,0 +1,77 @@
+- name: Include mapping.yml
+  ansible.builtin.include_vars: ./mapping.yml
+
+- name: Create projects for repositories
+  ansible.builtin.uri:
+    url: "{{ gl_url }}/api/v4/groups"
+    method: POST
+    body_format: json
+    body: {
+      "name": "{{ item }}",
+      "path": "{{ item }}",
+    }
+    headers:
+      PRIVATE-TOKEN: "{{ gl_token }}"
+    status_code: 201
+  with_items: "{{ sync_gh_orgs }}"
+  register: create_group
+  changed_when: "create_group.status == 201"
+  failed_when: "create_group.status != 201 and 'has already been taken' not in create_group.json.message"
+  notify: message
+
+- name: Create repositories
+  ansible.builtin.uri:
+    url: "{{ gl_url }}/api/v4/projects"
+    method: POST
+    body_format: json
+    body: {
+      "name": "{{ item.name }}",
+      "path": "{{ item.name }}",
+      "namespace_id": "{{ gitlab_namespace_ids[item.namespace] }}",
+    }
+    headers:
+      PRIVATE-TOKEN: "{{ gl_token }}"
+    status_code: 201
+  with_items: "{{ mapping }}"
+  register: create_repo
+  changed_when: "create_repo.status == 201"
+  failed_when: "create_repo.status != 201 and 'has already been taken' not in create_repo.json.message.name"
+
+- name: Set repository visibility
+  ansible.builtin.uri:
+    url: "{{ gl_url }}/api/v4/projects/{{ item.namespace }}%2F{{ item.name }}"
+    method: PUT
+    body_format: json
+    body: {
+      "visibility": "{{ item.visibility }}",
+    }
+    headers:
+      PRIVATE-TOKEN: "{{ gl_token }}"
+    status_code: 200
+  with_items: "{{ mapping }}"
+  register: create_repo
+  when: sync_visibility
+
+- name: Add remote to repository
+  ansible.builtin.shell: |
+    git remote add mirror {{ gl_url }}/{{ item.namespace }}/{{ item.name }}.git
+  args:
+    chdir: "repos/{{ item.github }}"
+  loop: "{{ mapping }}"
+  register: add_remote
+  changed_when: "'error: remote mirror already exists.' not in add_remote.stderr"
+  failed_when: false
+  environment:
+    GIT_TERMINAL_PROMPT: "0"
+
+- name: Push to remote
+  ansible.builtin.shell: "git push -u mirror"
+  args:
+    chdir: "repos/{{ item.github }}"
+  loop: "{{ mapping }}"
+  register: push_remote
+  changed_when: "'Everything up-to-date' not in push_remote.stderr"
+  environment:
+    GIT_TERMINAL_PROMPT: "0"
+    GIT_USERNAME: "{{ gl_user }}"
+    GIT_PASSWORD: "{{ gl_token }}"

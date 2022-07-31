@@ -1,0 +1,9 @@
+# You can override these in `host_vars/localhost/`
+gl_url: https://gitlab.com
+gl_user: user
+gl_user_id: 4
+gl_token: token
+# Please create the necessary groups yourself. If you want repos to be set to public, make the group public too.
+gitlab_namespace_ids: # Example! CHANGE ME! Get these namespace IDs through the ID or admin portal, they are needed to create the repositories.
+  user: 4
+  some_group: 5

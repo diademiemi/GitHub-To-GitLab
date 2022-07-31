@@ -1,0 +1,13 @@
+- name: List My GitHub Repos
+  ansible.builtin.uri:
+    url: https://api.github.com/search/repositories?q=user:{{ item }}
+    return_content: true
+    headers:
+      Authorization: "token {{ gh_token }}"
+  register: gh_orgs
+  loop: "{{ sync_gh_orgs }}"
+
+- name: Create mapping.yml with template
+  ansible.builtin.template:
+    src: mapping.yml.j2
+    dest: ./mapping.yml
