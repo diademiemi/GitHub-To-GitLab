@@ -51,6 +51,7 @@
   with_items: "{{ mapping }}"
   register: create_repo
   when: sync_visibility
+  ignore_errors: true
 
 - name: Add remote to repository
   ansible.builtin.shell: |
