@@ -6,7 +6,8 @@ skip_private: false
 sync_visibility: true # This will make repositories that are public on GitHub public on GitLab. If not set, everything will stay private
 
 sync_gh_orgs:
-- "{{ gh_user }}"
+- name: "{{ gh_user }}"
+  visibility: public
 
 skip_repos:
 - user/skip-this-repo

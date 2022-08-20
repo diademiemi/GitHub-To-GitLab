@@ -1,6 +1,6 @@
 - name: List My GitHub Repos
   ansible.builtin.uri:
-    url: https://api.github.com/search/repositories?q=user:{{ item }}
+    url: https://api.github.com/search/repositories?q=user:{{ item.name }}
     return_content: true
     headers:
       Authorization: "token {{ gh_token }}"

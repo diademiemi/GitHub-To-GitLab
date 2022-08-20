@@ -1,14 +1,15 @@
 - name: Include mapping.yml
   ansible.builtin.include_vars: ./mapping.yml
 
-- name: Create projects for repositories
+- name: Create groups for repositories
   ansible.builtin.uri:
     url: "https://{{ gl_host }}/api/v4/groups"
     method: POST
     body_format: json
     body: {
-      "name": "{{ item }}",
-      "path": "{{ item }}",
+      "name": "{{ item.name }}",
+      "path": "{{ item.name }}",
+      "visibility": "{{ item.visibility | default(omit) }}",
     }
     headers:
       PRIVATE-TOKEN: "{{ gl_token }}"
@@ -17,7 +18,16 @@
   register: create_group
   changed_when: "create_group.status == 201"
   failed_when: "create_group.status != 201 and 'has already been taken' not in create_group.json.message"
-  notify: message
+
+- name: Get namespaces
+  ansible.builtin.uri:
+    url: "https://{{ gl_host }}/api/v4/namespaces"
+    method: GET
+    headers:
+      PRIVATE-TOKEN: "{{ gl_token }}"
+    status_code: 200
+  register: namespaces
+  changed_when: false
 
 - name: Create repositories
   ansible.builtin.uri:
@@ -27,7 +37,7 @@
     body: {
       "name": "{{ item.name }}",
       "path": "{{ item.name }}",
-      "namespace_id": "{{ gitlab_namespace_ids[item.namespace] }}",
+      "namespace_id": "{{ namespaces.json | selectattr('path', '==', item.namespace) | map(attribute='id') | list | first }}",
     }
     headers:
       PRIVATE-TOKEN: "{{ gl_token }}"
@@ -67,7 +77,8 @@
     GIT_TERMINAL_PROMPT: "0"
 
 - name: Push to remote
-  ansible.builtin.shell: "git push https://{{ gl_user | urlencode }}:{{ gl_token | urlencode }}@{{ gl_host }}/{{ item.namespace }}/{{ item.name }}.git --all"
+  ansible.builtin.shell: |
+    git push https://{{ gl_user | urlencode }}:{{ gl_token | urlencode }}@{{ gl_host }}/{{ item.namespace }}/{{ item.name }}.git 'refs/remotes/origin/*:refs/heads/*' --tags
   args:
     chdir: "{{ repos_dir }}/{{ item.github }}"
   loop: "{{ mapping }}"
