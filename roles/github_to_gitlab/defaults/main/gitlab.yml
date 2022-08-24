@@ -1,6 +1,5 @@
 # You can override these in `host_vars/localhost/`
 gl_host: gitlab.com # Assumes https
 gl_user: user
-gl_user_id: 4
 gl_token: token
 # Please create the necessary groups yourself. If you want repos to be set to public, make the group public too.
